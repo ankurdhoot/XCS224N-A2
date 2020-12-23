@@ -15,8 +15,7 @@ def sigmoid(x):
     s -- sigmoid(x)
     """
 
-    ### YOUR CODE HERE
-    ### END YOUR CODE
+    s = 1 / (1 + np.exp(-x))
 
     return s
 
@@ -53,13 +52,25 @@ def naive_softmax_loss_and_gradient(
      we usually use column vector convention (i.e., vectors are in column form) for vectors in matrix U and V (in the handout)
      but for ease of implementation/programming we usually use row vectors (representing vectors in row form).
     """
+    
+    scores = np.matmul(outside_vectors, center_word_vec)
+    probabilities = softmax(scores)
+    
+    loss = -np.log(probabilities[outside_word_idx])
+    
+    y_hat = probabilities
+    # Create a one hot vector of size |V|
+    y = np.zeros(outside_vectors.shape[0])
+    y[outside_word_idx] = 1
+    # U.T * (y_hat - y) --> (n, V) * (V, ) --> (n, )
+    grad_center_vec = np.matmul(np.transpose(outside_vectors), y_hat - y)
+    #  (y_hat - y) * v_c --> (V, ) * (n, ) --> (V, n)
+    grad_outside_vecs = np.outer(y_hat - y, center_word_vec)
 
     ### Please use the provided softmax function (imported earlier in this file)
     ### This numerically stable implementation helps you avoid issues pertaining
     ### to integer overflow.
     
-    ### YOUR CODE HERE
-    ### END YOUR CODE
 
     return loss, grad_center_vec, grad_outside_vecs
 
@@ -146,9 +157,17 @@ def skipgram(current_center_word, window_size, outside_words, word2ind,
     loss = 0.0
     grad_center_vecs = np.zeros(center_word_vectors.shape)
     grad_outside_vectors = np.zeros(outside_vectors.shape)
-
-    ### YOUR CODE HERE
-    ### END YOUR CODE
+    
+    current_center_word_idx = word2ind[current_center_word]
+    center_word_vec = center_word_vectors[current_center_word_idx]
+    
+    for outside_word in outside_words:
+        outside_word_idx = word2ind[outside_word]
+        loss_w, grad_center_vec_w, grad_outside_vec_w = word2vec_loss_and_gradient(center_word_vec, outside_word_idx, outside_vectors, dataset)
+        loss = loss + loss_w
+        grad_center_vecs[current_center_word_idx] = grad_center_vecs[current_center_word_idx] + grad_center_vec_w
+        grad_outside_vectors = grad_outside_vectors + grad_outside_vec_w
+        
 
     return loss, grad_center_vecs, grad_outside_vectors
 

@@ -86,8 +86,11 @@ def sgd(f, x0, step, iterations, postprocessing=None, use_saved=False,
     for iter in range(start_iter + 1, iterations + 1):
         # You might want to print the progress every few iterations.
 
-        loss = None
         ### YOUR CODE HERE
+        loss, grad = f(x)
+        
+        x = x - step * grad
+        
         ### END YOUR CODE
 
         x = postprocessing(x)
@@ -96,7 +99,7 @@ def sgd(f, x0, step, iterations, postprocessing=None, use_saved=False,
                 exploss = loss
             else:
                 exploss = .95 * exploss + .05 * loss
-            print("iter %d: %f" % (iter, exploss))
+            print("iter %d: %f %f" % (iter, exploss, loss))
 
         if iter % SAVE_PARAMS_EVERY == 0 and use_saved:
             save_params(iter, x)

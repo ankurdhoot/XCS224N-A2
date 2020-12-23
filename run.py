@@ -35,8 +35,8 @@ dim_vectors = 10
 C = 5
 
 # Reset the random seed to make sure that everyone gets the same results
-random.seed(31415)
-np.random.seed(9265)
+# random.seed(31415)
+# np.random.seed(9265)
 
 start_time = time.time()
 word_vectors = np.concatenate(
@@ -45,7 +45,7 @@ word_vectors = np.concatenate(
     axis=0)
 word_vectors = sgd(
     lambda vec: word2vec_sgd_wrapper(skipgram, tokens, vec, dataset, C,
-                                     neg_sampling_loss_and_gradient),
+                                     naive_softmax_loss_and_gradient),
     word_vectors, 0.3, 40000, None, False, PRINT_EVERY=10)
 # Note that normalization is not called here. This is not a bug,
 # normalizing during training loses the notion of length.
